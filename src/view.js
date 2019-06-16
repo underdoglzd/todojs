@@ -1,7 +1,9 @@
-import { createElement } from './helpers.js';
+import { createElement, EventEmitter } from './helpers.js';
 
-class View {
+class View extends EventEmitter {
     constructor() {
+        super();
+
         this.form = document.getElementById('todo-form');
         this.input = document.getElementById('add-input');
         this.list = document.getElementById('todo-list');
@@ -36,11 +38,12 @@ class View {
     handleAdd(event) {
         event.preventDefault();
 
-        if (this.input.value) return alert('Введи название')
+        if (!this.input.value) return alert('Введи название')
 
         const value = this.input.value;
         
         //add
+        this.emit('add', value);
     }
 
     handleToggle({ target }) {
@@ -49,6 +52,7 @@ class View {
         const completed = target.completed;
 
         //update
+        this.emit('toggle', { id, completed });
     }
 
     handleEdit({ target }) {
@@ -62,6 +66,7 @@ class View {
 
         if (isEditing) {
             //update
+            this.emit('edit', { id, title });
         } else {
             input.value = label.textContent;
             editButton.textContent = 'Сохранить';
@@ -71,8 +76,10 @@ class View {
 
     handleRemove({ target }) {
         const listItem = target.parentNode;
+        const id = listItem.getAttribute('data-id');
 
         //remove item
+        this.emit('remove', id);
     }
 
     findListItem(id) {
